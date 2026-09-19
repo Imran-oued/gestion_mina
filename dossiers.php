@@ -6,7 +6,7 @@ require_once 'db.php';
 // Récupération des filtres depuis $_GET
 $filtre_service = isset($_GET['service']) ? trim($_GET['service']) : 'tous';
 $filtre_statut = isset($_GET['statut']) ? trim($_GET['statut']) : 'tous';
-$search_id = isset($_GET['search_id']) ? trim($_GET['search_id']) : '';
+$search_piece = isset($_GET['search_piece']) ? trim($_GET['search_piece']) : '';
 
 try {
     // Requête de base
@@ -28,10 +28,10 @@ try {
 
     $params = [];
 
-    // Recherche par ID (Si un ID est fourni, il prend la priorité)
-    if ($search_id !== '' && is_numeric($search_id)) {
-        $sql .= " AND r.id = :search_id";
-        $params[':search_id'] = (int) $search_id;
+    // Recherche par N° de Pièce (CNIB / Passeport)
+    if ($search_piece !== '') {
+        $sql .= " AND c.numero_piece LIKE :search_piece";
+        $params[':search_piece'] = '%' . $search_piece . '%';
     } else {
         // Filtre dynamique par service
         if ($filtre_service !== 'tous' && $filtre_service !== '') {
@@ -258,9 +258,9 @@ try {
         <!-- Formulaire de filtrage -->
         <form method="GET" action="dossiers.php" class="filter-form">
             <div class="form-group">
-                <label for="search_id">N° Dossier :</label>
-                <input type="number" name="search_id" id="search_id" placeholder="Rechercher par ID..."
-                    value="<?= htmlspecialchars($search_id) ?>" min="1">
+                <label for="search_piece">N° Passeport ou CNIB :</label>
+                <input type="text" name="search_piece" id="search_piece" placeholder="Rechercher par N° de pièce..."
+                    value="<?= htmlspecialchars($search_piece) ?>">
             </div>
 
             <div class="form-group">
