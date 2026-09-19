@@ -28,11 +28,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // les deux insertions (réservation et facture) se font correctement ensemble.
             $pdo->beginTransaction();
 
+            $fichier_joint = null;
+            if (isset($_FILES['fichier_joint']) && $_FILES['fichier_joint']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = 'uploads/';
+                $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9.\-_]/', '', basename($_FILES['fichier_joint']['name']));
+                $uploadFile = $uploadDir . $fileName;
+                if (move_uploaded_file($_FILES['fichier_joint']['tmp_name'], $uploadFile)) {
+                    $fichier_joint = $uploadFile;
+                }
+            }
+
             // 1. Insertion dans la table reservations
-            $sqlRes = "INSERT INTO reservations (client_id, description) VALUES (:client_id, :description)";
+            $sqlRes = "INSERT INTO reservations (client_id, description, fichier_joint) VALUES (:client_id, :description, :fichier_joint)";
             $stmtRes = $pdo->prepare($sqlRes);
             $stmtRes->bindParam(':client_id', $client_id);
             $stmtRes->bindParam(':description', $description);
+            $stmtRes->bindParam(':fichier_joint', $fichier_joint);
             $stmtRes->execute();
 
             // 2. Récupérer l'ID de la réservation que l'on vient de créer
@@ -193,7 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="nouvelle_reservation.php">
+        <form method="POST" action="nouvelle_reservation.php" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="client_id">Client :</label>
                 <select id="client_id" name="client_id" required>
@@ -215,6 +226,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group">
                 <label for="montant_total">Montant total de la facture (FCFA) :</label>
                 <input type="number" id="montant_total" name="montant_total" placeholder="Ex: 450000" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fichier_joint">Pièce jointe (Optionnel) :</label>
+                <input type="file" id="fichier_joint" name="fichier_joint" accept=".pdf,.jpg,.jpeg,.png" style="padding: 10px; background: #fff;">
             </div>
 
             <button type="submit" class="btn-submit">Créer le dossier</button>

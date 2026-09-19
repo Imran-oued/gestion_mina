@@ -104,6 +104,7 @@ CREATE TABLE `reservations` (
   `id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   `description` text NOT NULL,
+  `fichier_joint` varchar(255) DEFAULT NULL,
   `date_creation` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

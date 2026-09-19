@@ -13,6 +13,21 @@ try {
     $clients = [];
     $error = "Erreur de base de données (Avez-vous créé la table 'clients' ?) : " . $e->getMessage();
 }
+
+// Fetch stats for dashboard
+try {
+    $stmtStats = $pdo->query("
+        SELECT 
+            SUM(CASE WHEN LOWER(description) LIKE '%billet%' THEN 1 ELSE 0 END) as billets,
+            SUM(CASE WHEN LOWER(description) LIKE '%visa%' THEN 1 ELSE 0 END) as visas,
+            SUM(CASE WHEN LOWER(description) LIKE '%oumra%' THEN 1 ELSE 0 END) as oumra,
+            SUM(CASE WHEN LOWER(description) LIKE '%hadj%' THEN 1 ELSE 0 END) as hadj
+        FROM reservations
+    ");
+    $stats = $stmtStats->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $stats = ['billets' => 0, 'visas' => 0, 'oumra' => 0, 'hadj' => 0];
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -112,6 +127,26 @@ try {
         <?php if (isset($error)): ?>
             <div class="error-message"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
+
+        <!-- Récapitulatif / Dashboard Stats -->
+        <div style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;">
+            <div style="flex: 1; background: #3498db; color: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 150px;">
+                <div style="font-size: 28px; font-weight: bold;"><?= $stats['billets'] ?: 0 ?></div>
+                <div style="font-size: 14px; text-transform: uppercase; margin-top: 5px; font-weight: 600;">✈️ Billets</div>
+            </div>
+            <div style="flex: 1; background: #f39c12; color: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 150px;">
+                <div style="font-size: 28px; font-weight: bold;"><?= $stats['visas'] ?: 0 ?></div>
+                <div style="font-size: 14px; text-transform: uppercase; margin-top: 5px; font-weight: 600;">🛂 Visas</div>
+            </div>
+            <div style="flex: 1; background: #2ecc71; color: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 150px;">
+                <div style="font-size: 28px; font-weight: bold;"><?= $stats['oumra'] ?: 0 ?></div>
+                <div style="font-size: 14px; text-transform: uppercase; margin-top: 5px; font-weight: 600;">🕋 Oumra</div>
+            </div>
+            <div style="flex: 1; background: #9b59b6; color: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 150px;">
+                <div style="font-size: 28px; font-weight: bold;"><?= $stats['hadj'] ?: 0 ?></div>
+                <div style="font-size: 14px; text-transform: uppercase; margin-top: 5px; font-weight: 600;">🕋 Hadj</div>
+            </div>
+        </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
             <a href="ajouter_client.php"
