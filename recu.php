@@ -283,7 +283,7 @@ try {
         .signature-area {
             display: flex;
             justify-content: space-between;
-            margin-top: 100px;
+            margin-top: 70px;
             padding-top: 20px;
             border-top: 1px solid #edf2f7;
         }
@@ -293,7 +293,7 @@ try {
         }
         .signature-line {
             border-bottom: 1px dashed #cbd5e1;
-            height: 120px;
+            height: 90px;
             margin-bottom: 10px;
         }
         .signature-label {
