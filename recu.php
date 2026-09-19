@@ -16,11 +16,15 @@ try {
             p.id AS num_recu,
             p.montant,
             p.methode_paiement,
+            p.reference_paiement,
+            p.date_paiement,
             f.montant_total,
             f.montant_paye,
             r.description,
             c.nom,
-            c.prenom
+            c.prenom,
+            c.telephone,
+            c.numero_piece
         FROM paiements p
         JOIN factures f ON p.facture_id = f.id
         JOIN reservations r ON f.reservation_id = r.id
@@ -44,192 +48,452 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reçu #<?= htmlspecialchars($recu['num_recu']) ?> - Mina Voyage</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
         body {
-            font-family: 'Courier New', Courier, monospace;
-            /* Style machine à écrire / ticket */
-            background-color: #e9ecef;
-            color: #000;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
             margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 20px;
+            color: #2d3748;
         }
-
-        .receipt-container {
+        .page {
+            max-width: 850px;
+            margin: 0 auto;
             background: #fff;
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            border-top: 10px solid #2c3e50;
-            position: relative;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
-
+        .receipt-wrapper {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 25px;
+            position: relative;
+            background-color: #ffffff;
+            box-shadow: inset 0 0 0 4px #f8fafc;
+        }
+        .cut-line {
+            border-top: 2px dashed #cbd5e1;
+            margin: 40px 0;
+            position: relative;
+            text-align: left;
+        }
+        .cut-line::before {
+            content: "✂️";
+            position: absolute;
+            top: -14px;
+            left: -15px;
+            background: #fff;
+            padding: 0 10px;
+            font-size: 18px;
+        }
         .receipt-header {
-            text-align: center;
-            border-bottom: 2px dashed #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #edf2f7;
             padding-bottom: 20px;
             margin-bottom: 20px;
         }
-
-        .receipt-header h1 {
+        .company-info {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+        .receipt-title {
+            text-align: right;
+        }
+        .receipt-title h1 {
             margin: 0;
-            font-size: 28px;
-            color: #2c3e50;
-            letter-spacing: 2px;
+            font-size: 24px;
+            color: #2b6cb0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-
-        .receipt-header p {
-            margin: 5px 0 0;
-            font-size: 14px;
-            color: #555;
+        .receipt-title .receipt-num {
+            font-size: 16px;
+            font-weight: 600;
+            color: #718096;
+            margin-top: 5px;
         }
-
-        .receipt-details {
+        .logo {
+            max-width: 180px;
+            margin-bottom: 10px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             margin-bottom: 20px;
         }
-
-        .receipt-details p {
-            margin: 8px 0;
-            font-size: 15px;
+        .info-box {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #edf2f7;
+        }
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #a0aec0;
+            letter-spacing: 0.5px;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        .info-label {
+            font-weight: 600;
+            width: 130px;
+            color: #4a5568;
+        }
+        .info-value {
+            color: #1a202c;
+            flex: 1;
+        }
+        
+        .description-box {
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .bottom-section {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
         }
-
-        .divider {
-            border-bottom: 2px dashed #ccc;
-            margin: 20px 0;
+        
+        .payment-method {
+            flex: 1;
         }
-
-        .amount-highlight {
-            font-size: 20px;
-            font-weight: bold;
-            background: #f1f2f6;
-            padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            margin: 20px 0;
+        .method-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
         }
-
-        .footer-note {
-            text-align: center;
+        .method-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #cbd5e1;
+            border-radius: 4px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 12px;
-            color: #7f8c8d;
-            margin-top: 30px;
+            color: transparent;
+            transition: all 0.2s;
         }
-
-        .btn-print {
-            background-color: #3498db;
+        .checked {
+            background-color: #3182ce;
+            border-color: #3182ce;
             color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
+        }
+        
+        .amount-table {
+            width: 320px;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .amount-table tr {
+            border-bottom: 1px solid #edf2f7;
+        }
+        .amount-table tr:last-child {
+            border-bottom: none;
+        }
+        .amount-table td {
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+        .amount-table td:first-child {
+            font-weight: 500;
+            color: #4a5568;
+        }
+        .amount-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+            color: #1a202c;
+        }
+        .amount-highlight td {
+            background-color: #ebf8ff;
+            color: #2b6cb0 !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+        }
+        
+        .signature-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f7;
+        }
+        .signature-box {
+            width: 200px;
+            text-align: center;
+        }
+        .signature-line {
+            border-bottom: 1px dashed #cbd5e1;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+        .signature-label {
+            font-size: 13px;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .no-print {
+            text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background 0.3s;
         }
-
-        .btn-print:hover {
-            background-color: #2980b9;
-        }
-
-        .btn-back {
-            color: #34495e;
+        .btn {
+            padding: 12px 24px;
+            background: #3182ce;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
             text-decoration: none;
-            margin-top: 20px;
-            font-family: 'Segoe UI', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(49, 130, 206, 0.2);
         }
-
-        /* Masquer les boutons lors de l'impression */
+        .btn:hover { 
+            background: #2b6cb0; 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(49, 130, 206, 0.3);
+        }
+        .btn-secondary {
+            background: #718096;
+            box-shadow: 0 2px 4px rgba(113, 128, 150, 0.2);
+        }
+        .btn-secondary:hover {
+            background: #4a5568;
+            box-shadow: 0 4px 6px rgba(113, 128, 150, 0.3);
+        }
+        
         @media print {
-            body {
-                background-color: #fff;
-                padding: 0;
+            body { background: #fff; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 12px !important; color: #000; }
+            @page { margin: 5mm; size: A4 portrait; }
+            .page { 
+                box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; margin: 0;
+                height: 285mm; /* Hauteur d'une page A4 (297mm) moins les marges */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
             }
-
-            .receipt-container {
-                box-shadow: none;
-                border-top: none;
-                max-width: 100%;
-                padding: 0;
+            .no-print { display: none; }
+            
+            .receipt-wrapper { 
+                border: 1px solid #000 !important; 
+                box-shadow: none; 
+                padding: 15px !important; 
+                page-break-inside: avoid;
+                flex: 1; /* Prend la moitié de la page */
+                display: flex;
+                flex-direction: column;
             }
-
-            .btn-print,
-            .btn-back {
-                display: none !important;
+            .cut-line { margin: 15px 0 !important; border-top: 1px dashed #000 !important; }
+            
+            .receipt-header { margin-bottom: 10px !important; padding-bottom: 10px !important; }
+            .company-info { font-size: 11px !important; line-height: 1.3 !important; }
+            .receipt-title h1 { font-size: 20px !important; }
+            .receipt-title .receipt-num { font-size: 14px !important; margin-top: 2px !important; }
+            .logo { max-width: 150px !important; margin-bottom: 10px !important; }
+            
+            .info-grid { gap: 15px !important; margin-bottom: 15px !important; }
+            .info-box { border-color: #999 !important; padding: 10px !important; }
+            .info-box h3 { font-size: 11px !important; margin-bottom: 5px !important; }
+            .info-row { font-size: 12px !important; margin-bottom: 4px !important; }
+            .info-label { width: 120px !important; }
+            
+            .description-box { 
+                border-color: #999 !important; 
+                padding: 15px !important; 
+                margin-bottom: 15px !important; 
+                flex: 1; /* Prend tout l'espace libre au milieu */
+                justify-content: center;
             }
+            .description-box div:first-child { font-size: 11px !important; margin-bottom: 5px !important; }
+            .description-box div:last-child { font-size: 16px !important; font-weight: 600 !important; } /* Agrandit le texte */
+            
+            .bottom-section { margin-top: 0 !important; }
+            .payment-method > div:first-child { font-size: 11px !important; margin-bottom: 5px !important; }
+            .method-grid { gap: 8px !important; margin-top: 5px !important; }
+            .method-item { font-size: 12px !important; }
+            .checkbox { width: 14px !important; height: 14px !important; font-size: 12px !important; margin-right: 5px !important; border-color: #000 !important; }
+            
+            .amount-table { border-color: #999 !important; width: 300px !important; }
+            .amount-table tr { border-color: #999 !important; }
+            .amount-table td { padding: 6px 10px !important; font-size: 12px !important; }
+            .amount-highlight td { font-size: 14px !important; background-color: #f0f0f0 !important; color: #000 !important; }
+            
+            .signature-area { margin-top: 15px !important; padding-top: 10px !important; }
+            .signature-line { height: 35px !important; margin-bottom: 5px !important; }
+            .signature-label { font-size: 11px !important; }
         }
     </style>
 </head>
-
 <body>
 
-    <button class="btn-print" onclick="window.print()">🖨️ Imprimer / Sauvegarder en PDF</button>
+<?php 
+function renderReceipt($title, $recu, $date_impression, $reste) {
+    $is_especes = ($recu['methode_paiement'] == 'Espèces') ? 'checked' : '';
+    $is_cheque = ($recu['methode_paiement'] == 'Chèque') ? 'checked' : '';
+    $is_virement = ($recu['methode_paiement'] == 'Virement') ? 'checked' : '';
+    $is_autre = ($recu['methode_paiement'] == 'Carte' || empty($is_especes.$is_cheque.$is_virement)) ? 'checked' : '';
+    
+    // Format payment date if available, fallback to current time
+    $date_paiement = !empty($recu['date_paiement']) ? date('d/m/Y à H:i', strtotime($recu['date_paiement'])) : $date_impression;
 
-    <div class="receipt-container">
-        <div class="receipt-header">
-            <img src="LOGO.jpg" alt="Logo Mina Voyage" style="max-width: 180px; margin-bottom: 10px;">
-            <p>Votre partenaire de confiance</p>
-            <p>123 En face du Lycée mixte de Gounghin, Ouagadougou</p>
-            <p>Tél : +226 50 50 58 50 / 76 46 46 15</p>
-            <p> Whatsapp : 78 36 30 77</p>
-        </div>
+    $html = '<div class="receipt-wrapper">';
+    
+    // En-tête (Header)
+    $html .= '<div class="receipt-header">';
+    $html .= '<div class="company-info">';
+    $html .= '<img src="LOGO.jpg" class="logo" alt="Logo Mina Voyage" onerror="this.style.display=\'none\'">';
+    $html .= '<div><strong>Mina Voyage</strong> - Votre partenaire de confiance</div>';
+    $html .= '<div>123 En face du Lycée mixte de Gounghin, Ouagadougou</div>';
+    $html .= '<div>Tél : +226 50 50 58 50 / 76 46 46 15</div>';
+    $html .= '<div>Whatsapp : 78 36 30 77</div>';
+    $html .= '</div>';
+    $html .= '<div class="receipt-title">';
+    $html .= '<h1>' . $title . '</h1>';
+    $html .= '<div class="receipt-num">N° ' . str_pad($recu['num_recu'], 6, '0', STR_PAD_LEFT) . '</div>';
+    $html .= '</div>';
+    $html .= '</div>'; // fin header
+    
+    // Grille d'infos (Client & Date)
+    $html .= '<div class="info-grid">';
+    
+    // Infos Client
+    $html .= '<div class="info-box">';
+    $html .= '<h3>Informations Client</h3>';
+    $html .= '<div class="info-row"><div class="info-label">Nom complet</div><div class="info-value"><strong>' . htmlspecialchars($recu['nom'] . ' ' . $recu['prenom']) . '</strong></div></div>';
+    
+    $telephone = !empty($recu['telephone']) ? htmlspecialchars($recu['telephone']) : '-';
+    $html .= '<div class="info-row"><div class="info-label">Téléphone</div><div class="info-value">' . $telephone . '</div></div>';
+    
+    $piece = !empty($recu['numero_piece']) ? htmlspecialchars($recu['numero_piece']) : 'Non renseignée';
+    $html .= '<div class="info-row"><div class="info-label">N° Passeport/CNIB</div><div class="info-value">' . $piece . '</div></div>';
+    $html .= '</div>'; // fin box client
+    
+    // Infos Date & Réf
+    $html .= '<div class="info-box">';
+    $html .= '<h3>Détails de la transaction</h3>';
+    $html .= '<div class="info-row"><div class="info-label">Date du paiement</div><div class="info-value">' . $date_paiement . '</div></div>';
+    $html .= '<div class="info-row"><div class="info-label">Édité le</div><div class="info-value">' . $date_impression . '</div></div>';
+    
+    if (!empty($recu['reference_paiement'])) {
+        $html .= '<div class="info-row"><div class="info-label">Réf. transaction</div><div class="info-value" style="font-family: monospace; font-size: 15px;">' . htmlspecialchars($recu['reference_paiement']) . '</div></div>';
+    }
+    $html .= '</div>'; // fin box date
+    
+    $html .= '</div>'; // fin info-grid
+    
+    // Description
+    $html .= '<div class="description-box">';
+    $html .= '<div style="font-size: 12px; color: #a0aec0; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; letter-spacing: 0.5px;">Motif du paiement (Description du dossier)</div>';
+    $html .= '<div style="font-size: 16px; color: #1a202c; font-weight: 500;">' . nl2br(htmlspecialchars($recu['description'])) . '</div>';
+    $html .= '</div>';
+    
+    // Section du bas (Méthodes et Montants)
+    $html .= '<div class="bottom-section">';
+    
+    // Méthode de paiement
+    $html .= '<div class="payment-method">';
+    $html .= '<div style="font-size: 12px; color: #a0aec0; text-transform: uppercase; margin-bottom: 10px; font-weight: bold; letter-spacing: 0.5px;">Mode de règlement</div>';
+    $html .= '<div class="method-grid">';
+    $html .= '<div class="method-item"><div class="checkbox '.$is_especes.'">✔</div> Espèces</div>';
+    $html .= '<div class="method-item"><div class="checkbox '.$is_cheque.'">✔</div> Chèque</div>';
+    $html .= '<div class="method-item"><div class="checkbox '.$is_virement.'">✔</div> Virement Bancaire</div>';
+    $html .= '<div class="method-item"><div class="checkbox '.$is_autre.'">✔</div> Carte / Autre</div>';
+    $html .= '</div>';
+    $html .= '</div>';
+    
+    // Tableau des montants
+    $html .= '<div>';
+    $html .= '<table class="amount-table">';
+    $html .= '<tr><td>Montant total du dossier</td><td>' . number_format($recu['montant_total'], 0, ',', ' ') . ' FCFA</td></tr>';
+    $html .= '<tr class="amount-highlight"><td>Montant encaissé (Ce reçu)</td><td>' . number_format($recu['montant'], 0, ',', ' ') . ' FCFA</td></tr>';
+    $html .= '<tr><td>Total déjà réglé</td><td>' . number_format($recu['montant_paye'], 0, ',', ' ') . ' FCFA</td></tr>';
+    
+    $color_reste = ($reste > 0) ? '#e53e3e' : '#38a169'; // rouge si dette, vert si soldé
+    $texte_reste = ($reste > 0) ? 'Reste à payer' : 'Dossier soldé';
+    $html .= '<tr><td style="color: '.$color_reste.'; font-weight: bold;">'.$texte_reste.'</td><td style="color: '.$color_reste.'; font-weight: bold;">' . number_format(max(0, $reste), 0, ',', ' ') . ' FCFA</td></tr>';
+    
+    $html .= '</table>';
+    $html .= '</div>';
+    
+    $html .= '</div>'; // fin bottom-section
+    
+    // Signatures
+    $html .= '<div class="signature-area">';
+    $html .= '<div class="signature-box">';
+    $html .= '<div class="signature-line"></div>';
+    $html .= '<div class="signature-label">Signature du Client</div>';
+    $html .= '</div>';
+    $html .= '<div class="signature-box">';
+    $html .= '<div class="signature-line"></div>';
+    $html .= '<div class="signature-label">Cachet et Signature - Mina Voyage</div>';
+    $html .= '</div>';
+    $html .= '</div>';
+    
+    $html .= '</div>'; // fin receipt-wrapper
+    return $html;
+}
+?>
 
-        <div class="receipt-details">
-            <p><strong>REÇU N° :</strong>
-                <span>#<?= htmlspecialchars(str_pad($recu['num_recu'], 5, '0', STR_PAD_LEFT)) ?></span>
-            </p>
-            <p><strong>DATE :</strong> <span><?= htmlspecialchars($date_actuelle) ?></span></p>
-            <p><strong>CLIENT :</strong> <span><?= htmlspecialchars($recu['nom'] . ' ' . $recu['prenom']) ?></span></p>
-        </div>
+<div class="no-print">
+    <button class="btn" onclick="window.print()">
+        <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        Imprimer / PDF
+    </button>
+    <a href="dossiers.php" class="btn btn-secondary">
+        <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Retour
+    </a>
+</div>
 
-        <div class="divider"></div>
-
-        <div class="receipt-details">
-            <p><strong>DESCRIPTION :</strong> <span><?= htmlspecialchars($recu['description']) ?></span></p>
-            <p><strong>MÉTHODE :</strong> <span><?= htmlspecialchars($recu['methode_paiement']) ?></span></p>
-        </div>
-
-        <div class="amount-highlight">
-            MONTANT PAYÉ : <?= number_format($recu['montant'], 0, ',', ' ') ?> FCFA
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="receipt-details" style="font-size: 13px; color: #555;">
-            <p>Total du dossier : <span><?= number_format($recu['montant_total'], 0, ',', ' ') ?> FCFA</span></p>
-            <p>Total déjà réglé : <span><?= number_format($recu['montant_paye'], 0, ',', ' ') ?> FCFA</span></p>
-            <p style="color: <?= $reste > 0 ? '#e74c3c' : '#2ecc71' ?>; font-weight: bold;">
-                Reste à payer : <span><?= number_format(max(0, $reste), 0, ',', ' ') ?> FCFA</span>
-            </p>
-        </div>
-
-        <div class="footer-note">
-            Merci pour votre confiance ! <br>
-            Le paiement fait foi d'acceptation de nos conditions générales.
-        </div>
-        <div style="margin-top: 50px; display: flex; justify-content: flex-end;">
-            <div style="width: 250px; text-align: center;">
-                <p style="font-weight: bold; color: #333; margin-bottom: 80px; font-size: 14px;">Cachet et Signature :
-                </p>
-                <p style="font-size: 12px; color: #777; border-top: 1px dotted #ccc; padding-top: 5px;">La Direction -
-                    Mina Voyage</p>
-            </div>
-        </div>
-    </div>
-
-    <a href="dossiers.php" class="btn-back">← Retour aux dossiers</a>
+<div class="page">
+    <?= renderReceipt("Reçu de caisse", $recu, $date_actuelle, $reste) ?>
+    
+    <div class="cut-line"></div>
+    
+    <?= renderReceipt("Reçu de paiement", $recu, $date_actuelle, $reste) ?>
+</div>
 
 </body>
-
 </html>

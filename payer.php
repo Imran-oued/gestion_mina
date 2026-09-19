@@ -37,6 +37,7 @@ $reste_a_payer = $facture['montant_total'] - $facture['montant_paye'];
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $montant = floatval($_POST['montant'] ?? 0);
     $methode = $_POST['methode'] ?? '';
+    $reference = $_POST['reference'] ?? '';
 
     if ($montant > 0 && $montant <= $reste_a_payer && !empty($methode)) {
         try {
@@ -45,11 +46,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // 1. Insertion dans la table paiements
             // Si la colonne date_paiement n'existe pas par défaut avec CURRENT_TIMESTAMP, 
             // on peut omettre ou l'ajouter. On part du principe qu'elle a une valeur par défaut.
-            $sqlPaiement = "INSERT INTO paiements (facture_id, montant, methode_paiement) VALUES (:facture_id, :montant, :methode)";
+            $sqlPaiement = "INSERT INTO paiements (facture_id, montant, methode_paiement, reference_paiement) VALUES (:facture_id, :montant, :methode, :reference)";
             $stmtP = $pdo->prepare($sqlPaiement);
             $stmtP->bindParam(':facture_id', $facture_id);
             $stmtP->bindParam(':montant', $montant);
             $stmtP->bindParam(':methode', $methode);
+            $stmtP->bindParam(':reference', $reference);
             $stmtP->execute();
 
             $paiement_id = $pdo->lastInsertId();
@@ -230,12 +232,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="form-group">
                 <label for="methode">Méthode de paiement :</label>
-                <select id="methode" name="methode" required>
+                <select id="methode" name="methode" required onchange="toggleReferenceField()">
                     <option value="Espèces">Espèces</option>
                     <option value="Chèque">Chèque</option>
                     <option value="Virement">Virement Bancaire</option>
                     <option value="Carte">Carte Bancaire</option>
                 </select>
+            </div>
+
+            <div class="form-group" id="ref_group" style="display: none;">
+                <label for="reference">Numéro de chèque / virement :</label>
+                <input type="text" id="reference" name="reference" placeholder="Ex: CHQ12345" style="width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 5px; box-sizing: border-box; font-size: 16px;">
             </div>
 
             <button type="submit" class="btn-submit">Valider le paiement</button>
@@ -244,6 +251,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <a href="dossiers.php" class="btn-cancel">Annuler et retourner aux dossiers</a>
     </div>
 
+    <script>
+        function toggleReferenceField() {
+            const methode = document.getElementById('methode').value;
+            const refGroup = document.getElementById('ref_group');
+            if (methode === 'Chèque' || methode === 'Virement') {
+                refGroup.style.display = 'block';
+            } else {
+                refGroup.style.display = 'none';
+                document.getElementById('reference').value = '';
+            }
+        }
+        // Initialize state on load
+        toggleReferenceField();
+    </script>
 </body>
 
 </html>

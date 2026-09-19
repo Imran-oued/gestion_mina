@@ -31,16 +31,17 @@ CREATE TABLE `clients` (
   `id` int(11) NOT NULL,
   `nom` varchar(100) NOT NULL,
   `prenom` varchar(100) NOT NULL,
-  `telephone` varchar(20) NOT NULL
+  `telephone` varchar(20) NOT NULL,
+  `numero_piece` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `clients`
 --
 
-INSERT INTO `clients` (`id`, `nom`, `prenom`, `telephone`) VALUES
-(1, 'salif', 'moussa', '09887766'),
-(2, 'sana', 'oussou', '0621571514');
+INSERT INTO `clients` (`id`, `nom`, `prenom`, `telephone`, `numero_piece`) VALUES
+(1, 'salif', 'moussa', '09887766', NULL),
+(2, 'sana', 'oussou', '0621571514', NULL);
 
 -- --------------------------------------------------------
 
@@ -76,6 +77,7 @@ CREATE TABLE `paiements` (
   `facture_id` int(11) NOT NULL,
   `montant` decimal(10,2) NOT NULL,
   `methode_paiement` varchar(50) DEFAULT NULL,
+  `reference_paiement` varchar(100) DEFAULT NULL,
   `date_paiement` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -83,14 +85,14 @@ CREATE TABLE `paiements` (
 -- Déchargement des données de la table `paiements`
 --
 
-INSERT INTO `paiements` (`id`, `facture_id`, `montant`, `methode_paiement`, `date_paiement`) VALUES
-(1, 2, 700000.00, 'Espèces', '2026-09-17 13:39:00'),
-(2, 1, 700000.00, 'Espèces', '2026-09-17 15:18:42'),
-(3, 3, 1000000.00, 'Espèces', '2026-09-17 15:21:49'),
-(4, 3, 100000.00, 'Espèces', '2026-09-17 15:33:12'),
-(5, 3, 100000.00, 'Espèces', '2026-09-17 15:35:09'),
-(6, 3, 1000000.00, 'Espèces', '2026-09-17 15:44:05'),
-(7, 3, 200000.00, 'Espèces', '2026-09-17 22:27:04');
+INSERT INTO `paiements` (`id`, `facture_id`, `montant`, `methode_paiement`, `reference_paiement`, `date_paiement`) VALUES
+(1, 2, 700000.00, 'Espèces', NULL, '2026-09-17 13:39:00'),
+(2, 1, 700000.00, 'Espèces', NULL, '2026-09-17 15:18:42'),
+(3, 3, 1000000.00, 'Espèces', NULL, '2026-09-17 15:21:49'),
+(4, 3, 100000.00, 'Espèces', NULL, '2026-09-17 15:33:12'),
+(5, 3, 100000.00, 'Espèces', NULL, '2026-09-17 15:35:09'),
+(6, 3, 1000000.00, 'Espèces', NULL, '2026-09-17 15:44:05'),
+(7, 3, 200000.00, 'Espèces', NULL, '2026-09-17 22:27:04');
 
 -- --------------------------------------------------------
 

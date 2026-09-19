@@ -12,18 +12,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nom = $_POST['nom'] ?? '';
     $prenom = $_POST['prenom'] ?? '';
     $telephone = $_POST['telephone'] ?? '';
+    $numero_piece = $_POST['numero_piece'] ?? '';
 
     // Basic validation to ensure fields aren't empty
     if (!empty($nom) && !empty($prenom) && !empty($telephone)) {
         try {
             // Prepare the INSERT query
-            $sql = "INSERT INTO clients (nom, prenom, telephone) VALUES (:nom, :prenom, :telephone)";
+            $sql = "INSERT INTO clients (nom, prenom, telephone, numero_piece) VALUES (:nom, :prenom, :telephone, :numero_piece)";
             $stmt = $pdo->prepare($sql);
 
             // Bind the parameters
             $stmt->bindParam(':nom', $nom);
             $stmt->bindParam(':prenom', $prenom);
             $stmt->bindParam(':telephone', $telephone);
+            $stmt->bindParam(':numero_piece', $numero_piece);
 
             // Execute the query
             if ($stmt->execute()) {
@@ -183,6 +185,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group">
                 <label for="telephone">Téléphone :</label>
                 <input type="tel" id="telephone" name="telephone" placeholder="Ex: 06 12 34 56 78" required>
+            </div>
+
+            <div class="form-group">
+                <label for="numero_piece">N° Passeport ou CNIB (Optionnel) :</label>
+                <input type="text" id="numero_piece" name="numero_piece" placeholder="Ex: B1234567">
             </div>
 
             <button type="submit" class="btn-submit">Enregistrer le client</button>

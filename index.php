@@ -140,6 +140,8 @@ try {
                     <th>Nom</th>
                     <th>Prénom</th>
                     <th>Téléphone</th>
+                    <th>N° Pièce</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -150,11 +152,19 @@ try {
                             <td><strong><?= htmlspecialchars($client['nom'] ?? '') ?></strong></td>
                             <td><?= htmlspecialchars($client['prenom'] ?? '') ?></td>
                             <td><?= htmlspecialchars($client['telephone'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($client['numero_piece'] ?: '-') ?></td>
+                            <td>
+                                <a href="supprimer_client.php?id=<?= $client['id'] ?>" 
+                                   style="color: #e74c3c; text-decoration: none; font-weight: bold;" 
+                                   onclick="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer ce client ?\n\nCela supprimera TOUTES ses réservations, factures et paiements de l\'historique. Cette action est irréversible.');">
+                                   🗑️ Supprimer
+                                </a>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="4" class="empty-message">Aucun client dans la base de données. Cliquez sur le bouton
+                        <td colspan="6" class="empty-message">Aucun client dans la base de données. Cliquez sur le bouton
                             au-dessus pour en ajouter un.</td>
                     </tr>
                 <?php endif; ?>

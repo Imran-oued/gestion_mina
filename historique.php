@@ -11,6 +11,7 @@ try {
             p.date_paiement,
             p.montant,
             p.methode_paiement,
+            p.reference_paiement,
             c.nom,
             c.prenom,
             r.description
@@ -147,7 +148,12 @@ try {
                         <td style="color: #7f8c8d; font-size: 14px;"><?= htmlspecialchars($date_str) ?></td>
                         <td><strong><?= htmlspecialchars($enc['nom'] . ' ' . $enc['prenom']) ?></strong></td>
                         <td><?= htmlspecialchars($enc['description']) ?></td>
-                        <td><span class="badge-methode"><?= htmlspecialchars($enc['methode_paiement']) ?></span></td>
+                        <td>
+                            <span class="badge-methode"><?= htmlspecialchars($enc['methode_paiement']) ?></span>
+                            <?php if (!empty($enc['reference_paiement'])): ?>
+                                <br><small style="color: #7f8c8d; font-size: 12px; margin-top: 5px; display: inline-block;">Réf: <?= htmlspecialchars($enc['reference_paiement']) ?></small>
+                            <?php endif; ?>
+                        </td>
                         <td class="amount">+ <?= number_format($enc['montant'], 0, ',', ' ') ?> FCFA</td>
                         <td>
                             <a href="supprimer_paiement.php?id=<?= htmlspecialchars($enc['paiement_id']) ?>" 
