@@ -188,7 +188,7 @@ try {
         }
         .info-label {
             font-weight: 600;
-            width: 130px;
+            width: 160px;
             color: #4a5568;
         }
         .info-value {
