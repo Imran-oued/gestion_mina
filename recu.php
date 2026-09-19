@@ -341,7 +341,7 @@ try {
             @page { margin: 5mm; size: A4 portrait; }
             .page { 
                 box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; margin: 0;
-                height: 285mm; /* Hauteur d'une page A4 (297mm) moins les marges */
+                min-height: 280mm; /* S'assure que ça remplit la page A4 */
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -351,56 +351,17 @@ try {
             .receipt-wrapper { 
                 border: 1px solid #000 !important; 
                 box-shadow: none; 
-                padding: 15px !important; 
+                padding: 20px !important; 
                 page-break-inside: avoid;
                 flex: 1; /* Prend la moitié de la page */
                 display: flex;
                 flex-direction: column;
             }
-            .cut-line { margin: 15px 0 !important; border-top: 1px dashed #000 !important; }
+            .cut-line { margin: 20px 0 !important; border-top: 1px dashed #000 !important; }
             
-            .receipt-header { align-items: center !important; padding-bottom: 5px !important; margin-bottom: 5px !important; }
-            .logo { max-width: 100px !important; }
-            .company-info { padding: 0 10px !important; }
-            .company-name { font-size: 16px !important; margin-bottom: 0 !important; }
-            .company-slogan { font-size: 10px !important; margin-bottom: 4px !important; }
-            .services-title { font-size: 10px !important; margin-bottom: 2px !important; }
-            .services-list { font-size: 10px !important; margin-bottom: 4px !important; line-height: 1.2 !important; }
-            .contact-info { font-size: 10px !important; line-height: 1.2 !important; }
-            
-            .receipt-title h1 { font-size: 15px !important; }
-            .receipt-title .receipt-num { font-size: 11px !important; margin-top: 2px !important; }
-            
-            .info-grid { gap: 15px !important; margin-bottom: 15px !important; }
-            .info-box { border-color: #999 !important; padding: 10px !important; }
-            .info-box h3 { font-size: 11px !important; margin-bottom: 5px !important; }
-            .info-row { font-size: 12px !important; margin-bottom: 4px !important; }
-            .info-label { width: 120px !important; }
-            
-            .description-box { 
-                border-color: #999 !important; 
-                padding: 15px !important; 
-                margin-bottom: 15px !important; 
-                flex: 1; /* Prend tout l'espace libre au milieu */
-                justify-content: center;
-            }
-            .description-box div:first-child { font-size: 11px !important; margin-bottom: 5px !important; }
-            .description-box div:last-child { font-size: 16px !important; font-weight: 600 !important; } /* Agrandit le texte */
-            
-            .bottom-section { margin-top: 0 !important; }
-            .payment-method > div:first-child { font-size: 11px !important; margin-bottom: 5px !important; }
-            .method-grid { gap: 8px !important; margin-top: 5px !important; }
-            .method-item { font-size: 12px !important; }
-            .checkbox { width: 14px !important; height: 14px !important; font-size: 12px !important; margin-right: 5px !important; border-color: #000 !important; }
-            
-            .amount-table { border-color: #999 !important; width: 300px !important; }
-            .amount-table tr { border-color: #999 !important; }
-            .amount-table td { padding: 6px 10px !important; font-size: 12px !important; }
-            .amount-highlight td { font-size: 14px !important; background-color: #f0f0f0 !important; color: #000 !important; }
-            
-            .signature-area { margin-top: 15px !important; padding-top: 10px !important; }
-            .signature-line { height: 35px !important; margin-bottom: 5px !important; }
-            .signature-label { font-size: 11px !important; }
+            /* S'assure que les couleurs de fond (boutons, tables) sont imprimées */
+            .amount-highlight td { background-color: #ebf8ff !important; color: #2b6cb0 !important; }
+            .checked { background-color: #3182ce !important; color: white !important; }
         }
     </style>
 </head>
