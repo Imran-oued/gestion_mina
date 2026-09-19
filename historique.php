@@ -3,6 +3,8 @@
 require_once 'securite.php';
 require_once 'db.php';
 
+$search_piece = isset($_GET['search_piece']) ? trim($_GET['search_piece']) : '';
+
 try {
     // Requête JOIN pour lier paiements, factures, reservations et clients
     $sql = "
@@ -19,9 +21,19 @@ try {
         JOIN factures f ON p.facture_id = f.id
         JOIN reservations r ON f.reservation_id = r.id
         JOIN clients c ON r.client_id = c.id
-        ORDER BY p.id DESC
+        WHERE 1=1
     ";
-    $stmt = $pdo->query($sql);
+    
+    $params = [];
+    if ($search_piece !== '') {
+        $sql .= " AND c.numero_piece LIKE :search_piece";
+        $params[':search_piece'] = '%' . $search_piece . '%';
+    }
+
+    $sql .= " ORDER BY p.id DESC";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
     $encaissements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $encaissements = [];
@@ -122,6 +134,16 @@ try {
             <?= htmlspecialchars($error) ?>
         </div>
     <?php endif; ?>
+
+    <!-- Formulaire de recherche -->
+    <form method="GET" action="historique.php" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #e0e0e0;">
+        <label for="search_piece" style="font-weight: bold; color: #2c3e50;">N° Passeport ou CNIB :</label>
+        <input type="text" name="search_piece" id="search_piece" placeholder="Ex: B1234567" value="<?= htmlspecialchars($search_piece) ?>" style="padding: 10px; width: 250px; border: 1px solid #ced4da; border-radius: 5px; font-size: 15px;">
+        <button type="submit" style="background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 15px;">🔍 Rechercher</button>
+        <?php if ($search_piece !== ''): ?>
+            <a href="historique.php" style="color: #e74c3c; text-decoration: none; font-size: 14px; margin-left: 10px; font-weight: bold;">✖ Annuler le filtre</a>
+        <?php endif; ?>
+    </form>
 
     <table>
         <thead>
