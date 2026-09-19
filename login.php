@@ -11,6 +11,11 @@ if (isset($_SESSION['connecte']) && $_SESSION['connecte'] === true) {
 $message = '';
 $messageType = '';
 
+if (isset($_GET['expire']) && $_GET['expire'] == '1') {
+    $message = "Votre session a expiré pour des raisons de sécurité. Veuillez vous reconnecter.";
+    $messageType = "error";
+}
+
 // Traitement du formulaire de connexion
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $utilisateur = $_POST['utilisateur'] ?? '';

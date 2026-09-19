@@ -96,35 +96,67 @@ try {
         .receipt-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             border-bottom: 2px solid #edf2f7;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .logo {
+            max-width: 140px;
+            margin: 0;
+            flex-shrink: 0;
         }
         .company-info {
-            font-size: 13px;
-            color: #4a5568;
-            line-height: 1.5;
+            flex: 1;
+            text-align: center;
+            padding: 0 15px;
+            color: #2d3748;
         }
-        .receipt-title {
-            text-align: right;
-        }
-        .receipt-title h1 {
-            margin: 0;
-            font-size: 24px;
+        .company-name {
+            font-size: 20px;
+            font-weight: 800;
             color: #2b6cb0;
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-bottom: 2px;
         }
-        .receipt-title .receipt-num {
-            font-size: 16px;
+        .company-slogan {
+            font-size: 13px;
             font-weight: 600;
-            color: #718096;
-            margin-top: 5px;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-style: italic;
         }
-        .logo {
-            max-width: 180px;
-            margin-bottom: 10px;
+        .services-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #e53e3e;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        .services-list {
+            font-size: 12px;
+            line-height: 1.4;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .contact-info {
+            font-size: 12px;
+            line-height: 1.4;
+            color: #2d3748;
+        }
+        .receipt-title {
+            text-align: right;
+            flex-shrink: 0;
+            width: 160px;
+        }
+        .receipt-title h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #2b6cb0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .info-grid {
@@ -327,11 +359,17 @@ try {
             }
             .cut-line { margin: 15px 0 !important; border-top: 1px dashed #000 !important; }
             
-            .receipt-header { margin-bottom: 10px !important; padding-bottom: 10px !important; }
-            .company-info { font-size: 11px !important; line-height: 1.3 !important; }
-            .receipt-title h1 { font-size: 20px !important; }
-            .receipt-title .receipt-num { font-size: 14px !important; margin-top: 2px !important; }
-            .logo { max-width: 150px !important; margin-bottom: 10px !important; }
+            .receipt-header { align-items: center !important; padding-bottom: 5px !important; margin-bottom: 5px !important; }
+            .logo { max-width: 100px !important; }
+            .company-info { padding: 0 10px !important; }
+            .company-name { font-size: 16px !important; margin-bottom: 0 !important; }
+            .company-slogan { font-size: 10px !important; margin-bottom: 4px !important; }
+            .services-title { font-size: 10px !important; margin-bottom: 2px !important; }
+            .services-list { font-size: 10px !important; margin-bottom: 4px !important; line-height: 1.2 !important; }
+            .contact-info { font-size: 10px !important; line-height: 1.2 !important; }
+            
+            .receipt-title h1 { font-size: 15px !important; }
+            .receipt-title .receipt-num { font-size: 11px !important; margin-top: 2px !important; }
             
             .info-grid { gap: 15px !important; margin-bottom: 15px !important; }
             .info-box { border-color: #999 !important; padding: 10px !important; }
@@ -382,12 +420,19 @@ function renderReceipt($title, $recu, $date_impression, $reste) {
     
     // En-tête (Header)
     $html .= '<div class="receipt-header">';
-    $html .= '<div class="company-info">';
     $html .= '<img src="LOGO.jpg" class="logo" alt="Logo Mina Voyage" onerror="this.style.display=\'none\'">';
-    $html .= '<div><strong>Mina Voyage</strong> - Votre partenaire de confiance</div>';
-    $html .= '<div>123 En face du Lycée mixte de Gounghin, Ouagadougou</div>';
-    $html .= '<div>Tél : +226 50 50 58 50 / 76 46 46 15</div>';
-    $html .= '<div>Whatsapp : 78 36 30 77</div>';
+    $html .= '<div class="company-info">';
+    $html .= '<div class="company-name">MINA VOYAGE</div>';
+    $html .= '<div class="company-slogan">Votre partenaire de confiance</div>';
+    $html .= '<div class="services-title">NOS SERVICES :</div>';
+    $html .= '<div class="services-list">';
+    $html .= 'Hadj & Oumra &bull; Billetterie &bull; Visa Touristique<br>';
+    $html .= 'Location et Vente de Voiture &bull; Adjoint Équipe &bull; Réservation d\'Hôtels Divers';
+    $html .= '</div>';
+    $html .= '<div class="contact-info">';
+    $html .= '<strong>Localisation :</strong> En face du Lycée mixte de Gounghin, Ouagadougou<br>';
+    $html .= '<strong>Tél :</strong> +226 50 50 58 50 / 76 46 46 15 &nbsp;|&nbsp; <strong>Whatsapp :</strong> 78 36 30 77';
+    $html .= '</div>';
     $html .= '</div>';
     $html .= '<div class="receipt-title">';
     $html .= '<h1>' . $title . '</h1>';
