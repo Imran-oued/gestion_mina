@@ -16,6 +16,7 @@ try {
             p.reference_paiement,
             c.nom,
             c.prenom,
+            c.numero_piece,
             r.description
         FROM paiements p
         JOIN factures f ON p.facture_id = f.id
@@ -150,6 +151,7 @@ try {
             <tr>
                 <th>Date</th>
                 <th>Client</th>
+                <th>N° Pièce</th>
                 <th>Description du Service</th>
                 <th>Méthode</th>
                 <th>Montant Encaissé</th>
@@ -169,6 +171,7 @@ try {
                     <tr>
                         <td style="color: #7f8c8d; font-size: 14px;"><?= htmlspecialchars($date_str) ?></td>
                         <td><strong><?= htmlspecialchars($enc['nom'] . ' ' . $enc['prenom']) ?></strong></td>
+                        <td><span style="color: #7f8c8d; font-size: 13px;"><?= htmlspecialchars($enc['numero_piece'] ?: '-') ?></span></td>
                         <td><?= htmlspecialchars($enc['description']) ?></td>
                         <td>
                             <span class="badge-methode"><?= htmlspecialchars($enc['methode_paiement']) ?></span>
@@ -188,13 +191,13 @@ try {
                 <?php endforeach; ?>
                 <!-- Ligne de total à la fin -->
                 <tr style="background-color: #f1f8ff; border-top: 2px solid #2c3e50;">
-                    <td colspan="4" style="text-align: right; font-weight: bold; font-size: 18px;">Total des encaissements :</td>
+                    <td colspan="5" style="text-align: right; font-weight: bold; font-size: 18px;">Total des encaissements :</td>
                     <td class="amount" style="font-size: 18px;"><?= number_format($total_encaisse, 0, ',', ' ') ?> FCFA</td>
                     <td></td>
                 </tr>
             <?php else: ?>
                 <tr>
-                    <td colspan="6" class="empty-message">Aucun encaissement trouvé.</td>
+                    <td colspan="7" class="empty-message">Aucun encaissement trouvé.</td>
                 </tr>
             <?php endif; ?>
         </tbody>

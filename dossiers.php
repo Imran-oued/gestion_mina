@@ -16,6 +16,7 @@ try {
             r.description, 
             c.nom, 
             c.prenom, 
+            c.numero_piece,
             f.id AS facture_id, 
             f.montant_total, 
             f.montant_paye, 
@@ -298,6 +299,7 @@ try {
                 <tr>
                     <th>Réf. Dossier</th>
                     <th>Client</th>
+                    <th>N° Pièce</th>
                     <th>Description</th>
                     <th>Montant Total</th>
                     <th>Reste à Payer</th>
@@ -323,9 +325,10 @@ try {
                         ?>
                         <tr>
                             <td><strong>#<?= htmlspecialchars($d['reservation_id']) ?></strong></td>
-                            <td><?= htmlspecialchars($d['nom'] . ' ' . $d['prenom']) ?></td>
+                            <td><strong><?= htmlspecialchars($d['nom'] . ' ' . $d['prenom']) ?></strong></td>
+                            <td><span style="color: #7f8c8d; font-size: 13px;"><?= htmlspecialchars($d['numero_piece'] ?: '-') ?></span></td>
                             <td><?= htmlspecialchars($d['description']) ?></td>
-                            <td><?= number_format($d['montant_total'], 0, ',', ' ') ?> FCFA</td>
+                            <td><strong><?= number_format($d['montant_total'], 0, ',', ' ') ?> FCFA</strong></td>
                             <td style="color: <?= $reste > 0 ? '#e74c3c' : '#2ecc71' ?>; font-weight: bold;">
                                 <?= number_format(max(0, $reste), 0, ',', ' ') ?> FCFA
                             </td>
